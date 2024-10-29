@@ -1799,6 +1799,14 @@ void CActor::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy
 	if(outfit && inventory_item->m_ItemCurrPlace.type==eItemPlaceSlot)
 	{
 		outfit->ApplySkinModel	(this, false, false);
+
+		bool isGuns = EngineExternal()[EEngineExternalGunslinger::EnableGunslingerMode];
+		if (isGuns)
+		{
+			CTorch* torch = smart_cast<CTorch*>(inventory().ItemFromSlot(TORCH_SLOT));
+			if (torch && torch->IsSwitched())
+				torch->Switch(false);
+		}
 	}
 
 	CHelmet* helmet = smart_cast<CHelmet*>(inventory_item);
@@ -1807,6 +1815,13 @@ void CActor::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy
 		CTorch* torch = smart_cast<CTorch*>(inventory().ItemFromSlot(TORCH_SLOT));
 		if (torch && torch->GetNightVisionStatus())
 			torch->SwitchNightVision(false);
+
+		bool isGuns = EngineExternal()[EEngineExternalGunslinger::EnableGunslingerMode];
+		if (isGuns)
+		{
+			if (torch && torch->IsSwitched())
+				torch->Switch(false);
+		}
 	}
 
 	CWeapon* weapon	= smart_cast<CWeapon*>(inventory_item);
