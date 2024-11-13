@@ -491,6 +491,7 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 		SwitchState(eIdle);
 
 	_wanim_force_assign = true;
+	_is_just_after_reload = false;
 }
 
 void CWeaponMagazined::SwapFirstLastAmmo()
@@ -747,8 +748,6 @@ u8 CWeaponMagazined::AddCartridge(u8 cnt)
 	if (m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer())
 		m_pCurrentAmmo->SetDropManual(TRUE);
 
-	SwapLastPrevAmmo();
-
 	return cnt;
 }
 
@@ -843,6 +842,9 @@ xr_string CWeaponMagazined::NeedAddSuffix(const xr_string& M)
 	if (!IsMisfire() && iAmmoElapsed == 1)
 		new_name = AddSuffixName(new_name, isGuns ? "_last" : "_l");
 
+	if (bIsNeedFirstShootAnims && _is_just_after_reload)
+		new_name = AddSuffixName(new_name, "_first");
+
 	if (!IsMisfire() && iAmmoElapsed == 0)
 		new_name = AddSuffixName(new_name, "_empty");
 
@@ -908,8 +910,6 @@ void CWeaponMagazined::UpdateCL			()
 		case eFire:			
 			{
 				state_Fire(dt);
-				ProcessAmmo();
-				ProcessAmmoGL();
 			}break;
 		case eHidden:		break;
 		}
@@ -1117,6 +1117,7 @@ void CWeaponMagazined::DoReload()
 	iMagazineSize = mod_magsize;
 	ReloadMagazine();
 	iMagazineSize = def_magsize;
+	_is_just_after_reload = true;
 }
 
 void CWeaponMagazined::TriStateEnd()
@@ -1130,11 +1131,20 @@ void CWeaponMagazined::TriStateEnd()
 		else
 			m_sub_state = eSubstateReloadInProcess;
 
+		if (!IsReloaded && m_bAddCartridgeOpen)
+		{
+			AddCartridge(1);
+			if (m_bAmmoInChamber)
+				SwapLastPrevAmmo();
+		}
+
+		_is_just_after_reload = true;
+
 		SwitchState(eReload);
 	}break;
 	case eSubstateReloadInProcess:
 	{
-		if (0 != AddCartridge(1) || bStopReloadSignal)
+		if (bStopReloadSignal || iAmmoElapsed == iMagazineSize)
 			m_sub_state = eSubstateReloadEnd;
 
 		SwitchState(eReload);
@@ -1390,13 +1400,13 @@ void CWeaponMagazined::TriStateReload()
 		{
 			switch2_StartReload();
 			
-			bool isGuns = EngineExternal().isModificationGunslinger();
-			
-			if (isGuns)
-			{
-				if (iAmmoElapsed == 0 && m_bAddCartridgeOpen || !bPreloadAnimAdapter)
-					AddCartridge(1);
-			}
+			//bool isGuns = EngineExternal().isModificationGunslinger();
+			//
+			//if (isGuns)
+			//{
+			//	if (iAmmoElapsed == 0 && m_bAddCartridgeOpen || !bPreloadAnimAdapter)
+			//		AddCartridge(1);
+			//}
 		}
 	}break;
 	case eSubstateReloadInProcess:
@@ -1415,7 +1425,7 @@ void CWeaponMagazined::switch2_StartReload()
 	PlayAnimOpenWeapon();
 	SetPending(TRUE);
 
-	if (m_sounds.FindSoundItem("sndOpenEmpty", false) && m_bAddCartridgeOpen && iAmmoElapsed == 0)
+	if (m_sounds.FindSoundItem("sndOpenEmpty", false) && iAmmoElapsed == 0)
 		PlaySound("sndOpenEmpty", get_LastFP());
 	else
 		PlaySound("sndOpen", get_LastFP());
@@ -1458,8 +1468,33 @@ void CWeaponMagazined::PlayAnimOpenWeapon()
 		anm_name += "_empty";
 		bPreloadAnimAdapter = true;
 	}
+	else if (bIsNeedFirstShootAnims && _is_just_after_reload)
+		anm_name += "_first";
+
+	IsReloaded = false;
 
 	PlayHUDMotion(anm_name, false, GetState(), false, false);
+	MakeLockByConfigParam("lock_time_start_" + anm_name, false, { CHudItem::TAnimationEffector(this, &CWeaponMagazined::OnAddCartridgeInOpen) });
+}
+
+void CWeaponMagazined::OnAnimationEnd_OnAddCartridge()
+{
+	if (!IsReloaded)
+	{
+		AddCartridge(1);
+		if (m_bAmmoInChamber)
+			SwapLastPrevAmmo();
+	}
+
+	_is_just_after_reload = true;
+}
+
+void CWeaponMagazined::OnAddCartridgeInOpen()
+{
+	IsReloaded = false;
+	OnAnimationEnd_OnAddCartridge();
+	IsReloaded = true;
+	MakeLockByConfigParam("lock_time_end_" + GetActualCurrentAnim());
 }
 
 void CWeaponMagazined::PlayAnimAddOneCartridgeWeapon()
@@ -1467,6 +1502,11 @@ void CWeaponMagazined::PlayAnimAddOneCartridgeWeapon()
 	VERIFY(GetState() == eReload);
 
 	xr_string anm_name = "anm_add_cartridge";
+
+	if (!m_bAddCartridgeOpen && iAmmoElapsed == 0)
+		anm_name += "_empty";
+	else if (bIsNeedFirstShootAnims && _is_just_after_reload)
+		anm_name += "_first";
 
 	if (m_bEmptyPreloadMode && bPreloadAnimAdapter)
 	{
@@ -1477,10 +1517,11 @@ void CWeaponMagazined::PlayAnimAddOneCartridgeWeapon()
 
 		bPreloadAnimAdapter = false;
 	}
-	else if (!m_bAddCartridgeOpen && iAmmoElapsed == 0 && HudAnimationExist("anm_add_cartridge_empty"))
-		anm_name += "_empty";
+
+	IsReloaded = false;
 
 	PlayHUDMotion(anm_name, false, GetState(), false, false);
+	MakeLockByConfigParam("lock_time_start_" + anm_name, false, { CHudItem::TAnimationEffector(this, &CWeaponMagazined::OnAddCartridgeInOpen) });
 }
 
 void CWeaponMagazined::PlayAnimCloseWeapon()
@@ -1488,6 +1529,11 @@ void CWeaponMagazined::PlayAnimCloseWeapon()
 	VERIFY(GetState() == eReload);
 
 	xr_string anm_name = "anm_close";
+
+	if (!m_bAddCartridgeOpen && iAmmoElapsed == 0)
+		anm_name += "_empty";
+	else if (bIsNeedFirstShootAnims && _is_just_after_reload)
+		anm_name += "_first";
 
 	if (m_bEmptyPreloadMode && bPreloadAnimAdapter)
 	{
@@ -1500,6 +1546,11 @@ void CWeaponMagazined::PlayAnimCloseWeapon()
 	}
 	else if (!m_bAddCartridgeOpen && iAmmoElapsed == 0 && HudAnimationExist("anm_add_cartridge_empty"))
 		anm_name = "anm_add_cartridge_empty";
+
+	if (bIsNeedFinalCloseAnims && iAmmoElapsed == iMagazineSize)
+		anm_name += "_final";
+
+	IsReloaded = false;
 
 	PlayHUDMotion(anm_name, false, GetState(), false, false);
 }
@@ -2025,8 +2076,6 @@ void CWeaponMagazined::OnAmmoTimer()
 	IsReloaded = false;
 	DoReload();
 	IsReloaded = true;
-	ProcessAmmo();
-	ProcessAmmoGL();
 	MakeLockByConfigParam("lock_time_end_" + GetActualCurrentAnim(), false);
 }
 
