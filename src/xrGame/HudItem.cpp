@@ -1092,10 +1092,15 @@ bool CHudItem::Weapon_SetKeyRepeatFlagIfNeeded(u32 kfACTTYPE) const
 	bool result = CanStartAction();
 	if (!result)
 	{
-		if (Actor()->GetMovementState(eReal) & ACTOR_DEFS::EMoveCommand::mcSprint || GetState() != eIdle)
+		if (Actor()->GetMovementState(eReal) & ACTOR_DEFS::EMoveCommand::mcSprint)
 		{
 			Actor()->SetMovementState(eWishful, mcSprint, false);
 			Actor()->SetActorKeyRepeatFlag((ACTOR_DEFS::EActorKeyflags)kfACTTYPE, true);
+		}
+		else if (CWeapon* wpn = smart_cast<CWeapon*>(this))
+		{
+			if (wpn->IsMisfire() && (kfACTTYPE == ACTOR_DEFS::EActorKeyflags::kfRELOAD || kfACTTYPE == ACTOR_DEFS::EActorKeyflags::kfNEXTAMMO))
+				Actor()->SetActorKeyRepeatFlag((ACTOR_DEFS::EActorKeyflags)kfACTTYPE, true);
 		}
 	}
 
