@@ -75,7 +75,7 @@ void CUIRankingWnd::Show( bool status )
 			}
 			else
 			{
-				m_actor_ch_info->InitCharacterMP(Actor()
+				m_actor_ch_info->InitCharacterMP(Actor());
 			}
 		}
 		

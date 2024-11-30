@@ -182,14 +182,6 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	{
 		m_pActiveDialog = pUITaskWnd;
 	}
-	else if ( section == "eptRanking" )
-	{
-	    if (section == "eptRanking")
-	{
-		    m_pActiveDialog = pUIRankingWnd;
-	    }
-	}
-	*/
 	else if (section == "eptRanking")
 	{
 		if (IsGameTypeSingle()) {

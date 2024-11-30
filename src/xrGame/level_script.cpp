@@ -1196,40 +1196,6 @@ void CLevel::script_register(lua_State *L)
 		def("set_active_cam", &set_active_cam),
 		def("get_start_time", &get_start_time),
 		def("valid_vertex", &valid_vertex)
-		],
-
-		module(L, "nearest")
-		[
-			def("set", &level_nearest::Set),
-				def("size", &level_nearest::Size),
-				def("get", &level_nearest::Get)
-		];
-
-		def("block_action", &block_action_script),
-		def("is_block_action", &is_block_action_script),
-		def("unblock_action", &unblock_action_script),
-		def("press_action", &press_action_script),
-		def("hold_action", &hold_action_script),
-		def("release_action", &release_action_script),
-		def("lock_actor", &LockActorWithCameraRotation_script),
-		def("unlock_actor", &UnLockActor_script),
-		
-		def("u_event_gen", &u_event_gen), //Send events via packet
-		def("u_event_send", &u_event_send),
-		def("send", &g_send), //allow the ability to send netpacket to level
-		def("get_target_obj", &g_get_target_obj), //intentionally named to what is in xray extensions
-		def("get_target_dist", &g_get_target_dist),
-		def("press_action", &LevelPressAction),
-		def("release_action", &LevelReleaseAction),
-		def("hold_action", &LevelHoldAction),
-		def("get_target_element", &g_get_target_element), //Can get bone cursor is targetting
-		def("get_view_entity", &get_view_entity_script),
-		def("set_view_entity", &set_view_entity_script),
-		def("spawn_item", &spawn_section),
-		def("get_active_cam", &get_active_cam),
-		def("set_active_cam", &set_active_cam),
-		def("get_start_time", &get_start_time),
-		def("valid_vertex", &valid_vertex)
 	],
 	
 	module(L,"nearest")
