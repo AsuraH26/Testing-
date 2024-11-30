@@ -36,12 +36,18 @@ private:
 	};
 
 public:
-	xr_vector<std::pair<FVF::L, FVF::L>> m_lines;
+	struct LineRenderPack {
+		float x1 = 0.0f, y1 = 0.0f;
+		float x2 = 0.0f, y2 = 0.0f;
+		u32 color = 0xffffffff;
+	};
+
+	xr_vector<LineRenderPack> m_lines;
 
 private:
-	ref_shader		m_dbgShaders[dbgShaderCount];
+	ref_shader m_dbgShaders[dbgShaderCount];
 };
 
 extern dxDebugRender DebugRenderImpl;
-extern dxDebugRender* rdebug_render;
+//extern dxDebugRender* rdebug_render;
 #endif // DEBUG

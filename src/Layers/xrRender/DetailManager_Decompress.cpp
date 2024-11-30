@@ -39,7 +39,7 @@ IC bool		InterpolateAndDither(float* alpha255,	u32 x, u32 y, u32 sx, u32 sy, u32
 }
 
 #ifndef _EDITOR
-#ifdef	DEBUG
+#if 0 //def	DEBUG
 //#include "../../Include/xrRender/DebugRender.h"
 #include "dxDebugRender.h"
 static void draw_obb		( const Fmatrix &matrix, const u32 &color )
@@ -287,7 +287,7 @@ RDEVICE.Statistic->TEST0.End		();
 			Bounds.merge					(ItemBB);
 
 #ifndef _EDITOR
-#ifdef		DEBUG
+#if 0 //def	DEBUG
 			if(det_render_debug)
 				draw_obb(  mXform, color_rgba		(255,0,0,255) );//Fmatrix().mul_43( mXform, Fmatrix().scale(5,5,5) )
 #endif

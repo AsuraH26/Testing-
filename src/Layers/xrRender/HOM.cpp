@@ -34,14 +34,14 @@ CHOM::CHOM()
 	bEnabled		= FALSE;
 	m_pModel		= 0;
 	m_pTris			= 0;
-#ifdef DEBUG
+#ifdef DEBUG_DRAW
 	Device.seqRender.Add(this,REG_PRIORITY_LOW-1000);
 #endif
 }
 
 CHOM::~CHOM()
 {
-#ifdef DEBUG
+#ifdef DEBUG_DRAW
 	Device.seqRender.Remove(this);
 #endif
 }

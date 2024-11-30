@@ -6,10 +6,10 @@
 #include "dxUIShader.h"
 
 dxDebugRender DebugRenderImpl;
-dxDebugRender DebugRenderImpl_1;
+
 dxDebugRender::dxDebugRender()
 {
-	m_lines.reserve			(line_vertex_limit);
+	m_lines.reserve(line_vertex_limit);
 }
 
 void dxDebugRender::Render()
@@ -44,48 +44,55 @@ void _add_lines		(  xr_vector<FVF::L> &vertices, xr_vector<u32>& indices, Fvecto
 }
 #endif
 
-void dxDebugRender::add_lines		(Fvector const *vertices, u32 const &vertex_count, u32 const *pairs, u32 const &pair_count, u32 const &color)
-{
-	for (size_t i = 0; i < pair_count * 2; i += 2) {
+void dxDebugRender::add_lines(Fvector const* vertices, u32 const& vertex_count, u32 const* pairs, u32 const& pair_count, u32 const& color) {
+	for(size_t i = 0; i < pair_count * 2; i += 2) {
 		u32 i0 = pairs[i];
 		u32 i1 = pairs[i + 1];
-		FVF::L v0 = {};
-		FVF::L v1 = {};
-		v0.p = vertices[i0];
-		v1.p = vertices[i1];
-		v0.color = color;
-		v1.color = color;
 
-		Device.mView_saved.transform(v0.p);
-		Device.mView_saved.transform(v1.p);
+		auto v0p = vertices[i0];
+		auto v1p = vertices[i1];
 
-		if (v0.p.z > VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
-			Fvector fp = v1.p;
-			fp.lerp(v0.p, v1.p, (v0.p.z - VIEWPORT_NEAR) / (v0.p.z - v1.p.z));
-			v1.p = fp;
-		}
+		Device.mView_saved.transform(v0p);
+		Device.mView_saved.transform(v1p);
 
-		if (v0.p.z <= VIEWPORT_NEAR && v1.p.z > VIEWPORT_NEAR) {
-			Fvector fp = v0.p;
-			fp.lerp(v1.p, v0.p, (v1.p.z - VIEWPORT_NEAR) / (v1.p.z - v0.p.z));
-			v0.p = fp;
-		}
+		static auto viewport_near = VIEWPORT_NEAR * 0.1f;
 
-		if (v0.p.z <= VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
+		if(v0p.z <= viewport_near && v1p.z <= viewport_near) {
 			continue;
 		}
 
-		Device.mProject_saved.transform(v0.p);
-		Device.mProject_saved.transform(v1.p);
-		v0.p.x = (v0.p.x * 0.5f + 0.5f) * Device.TargetWidth;
-		v0.p.y = (-v0.p.y * 0.5f + 0.5f) * Device.TargetHeight;
+		static auto NearClipping = [](Fvector& v0p, Fvector& v1p) {
+			if(v0p.z > viewport_near && v1p.z <= viewport_near) {
+				Fvector fp = v1p;
+				fp.lerp(v0p, v1p, (v0p.z - viewport_near) / (v0p.z - v1p.z));
+				v1p = fp;
+			}
+		};
 
-		v1.p.x = (v1.p.x * 0.5f + 0.5f) * Device.TargetWidth;
-		v1.p.y = (-v1.p.y * 0.5f + 0.5f) * Device.TargetHeight;
+		NearClipping(v0p, v1p);
+		NearClipping(v1p, v0p);
 
-		m_lines.emplace_back(v0, v1);
+		if(!RImplementation.get_HUD()) {
+			Device.mProject_saved.transform(v0p);
+			Device.mProject_saved.transform(v1p);
+		}
+		else {
+			Device.mProject_hud.transform(v0p);
+			Device.mProject_hud.transform(v1p);
+		}
+
+		static LineRenderPack LineData;
+
+		LineData.x1 = (0.5f + 0.5f * v0p.x) * Device.TargetWidth;
+		LineData.y1 = (0.5f - 0.5f * v0p.y) * Device.TargetHeight;
+
+		LineData.x2 = (0.5f + 0.5f * v1p.x) * Device.TargetWidth;
+		LineData.y2 = (0.5f - 0.5f * v1p.y) * Device.TargetHeight;
+
+		LineData.color = color;
+
+		m_lines.push_back(LineData);
 	}
-
 }
 
 void dxDebugRender::NextSceneMode()
@@ -162,83 +169,85 @@ void dxDebugRender::dbg_DrawTRI(Fmatrix& T, Fvector& p1, Fvector& p2, Fvector& p
 	RCache.dbg_DrawTRI(T, p1, p2, p3, C);
 }
 
-
-struct RDebugRender: 
-	public dxDebugRender,
-	public pureRender
-{
-private:
- xr_vector<std::pair<FVF::L, FVF::L>>		_lines;
-
-//	Vertices		_line_vertices;
-//	Indices			_line_indices;
-public:
-	RDebugRender()
-	{
-#ifndef _EDITOR
-		Device.seqRender.Add		(this,REG_PRIORITY_LOW-100);
-#endif
-	}
-
-virtual	~RDebugRender()
-	{
-#ifndef _EDITOR
-		Device.seqRender.Remove		(this);
-#endif
-	}
-
-void OnRender()
-	{
-
-		m_lines =	_lines;
-		Render();
-
-
-	}
-virtual void	add_lines			(Fvector const *vertices, u32 const &vertex_count, u32 const *pairs, u32 const &pair_count, u32 const &color)
-{
-	_lines.resize(0);
-	for (size_t i = 0; i < pair_count * 2; i += 2) {
-	u32 i0 = pairs[i];
-		u32 i1 = pairs[i + 1];
-		FVF::L v0 = {};
-		FVF::L v1 = {};
-		v0.p = vertices[i0];
-		v1.p = vertices[i1];
-		v0.color = color;
-		v1.color = color;
-
-		Device.mView_saved.transform(v0.p);
-		Device.mView_saved.transform(v1.p);
-
-		if (v0.p.z > VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
-			Fvector fp = v1.p;
-			fp.lerp(v0.p, v1.p, (v0.p.z - VIEWPORT_NEAR) / (v0.p.z - v1.p.z));
-			v1.p = fp;
-		}
-
-		if (v0.p.z <= VIEWPORT_NEAR && v1.p.z > VIEWPORT_NEAR) {
-			Fvector fp = v0.p;
-			fp.lerp(v1.p, v0.p, (v1.p.z - VIEWPORT_NEAR) / (v1.p.z - v0.p.z));
-			v0.p = fp;
-		}
-
-		if (v0.p.z <= VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
-			continue;
-		}
-
-		Device.mProject_saved.transform(v0.p);
-		Device.mProject_saved.transform(v1.p);
-		v0.p.x = (v0.p.x * 0.5f + 0.5f) * Device.TargetWidth;
-		v0.p.y = (-v0.p.y * 0.5f + 0.5f) * Device.TargetHeight;
-
-		v1.p.x = (v1.p.x * 0.5f + 0.5f) * Device.TargetWidth;
-		v1.p.y = (-v1.p.y * 0.5f + 0.5f) * Device.TargetHeight;
-
-		_lines.emplace_back(v0, v1);
-	}
-}
-} rdebug_render_impl;
-dxDebugRender *rdebug_render = &rdebug_render_impl; 
+//
+//struct RDebugRender :
+//	public dxDebugRender,
+//	public pureRender {
+//private:
+//	xr_vector<std::pair<FVF::L, FVF::L>>		_lines;
+//
+//	//	Vertices		_line_vertices;
+//	//	Indices			_line_indices;
+//public:
+//	RDebugRender() {
+//#ifndef _EDITOR
+//		Device.seqRender.Add(this, REG_PRIORITY_LOW - 100);
+//#endif
+//	}
+//
+//	virtual	~RDebugRender() {
+//#ifndef _EDITOR
+//		Device.seqRender.Remove(this);
+//#endif
+//	}
+//
+//	void OnRender() {
+//
+//		m_lines = _lines;
+//		Render();
+//
+//
+//	}
+//	virtual void	add_lines(Fvector const* vertices, u32 const& vertex_count, u32 const* pairs, u32 const& pair_count, u32 const& color) {
+//		_lines.resize(0);
+//		for(size_t i = 0; i < pair_count * 2; i += 2) {
+//			u32 i0 = pairs[i];
+//			u32 i1 = pairs[i + 1];
+//			FVF::L v0 = {};
+//			FVF::L v1 = {};
+//			v0.p = vertices[i0];
+//			v1.p = vertices[i1];
+//			v0.color = color;
+//			v1.color = color;
+//
+//			Device.mView_saved.transform(v0.p);
+//			Device.mView_saved.transform(v1.p);
+//
+//			if(v0.p.z > VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
+//				Fvector fp = v1.p;
+//				fp.lerp(v0.p, v1.p, (v0.p.z - VIEWPORT_NEAR) / (v0.p.z - v1.p.z));
+//				v1.p = fp;
+//			}
+//
+//			if(v0.p.z <= VIEWPORT_NEAR && v1.p.z > VIEWPORT_NEAR) {
+//				Fvector fp = v0.p;
+//				fp.lerp(v1.p, v0.p, (v1.p.z - VIEWPORT_NEAR) / (v1.p.z - v0.p.z));
+//				v0.p = fp;
+//			}
+//
+//			if(v0.p.z <= VIEWPORT_NEAR && v1.p.z <= VIEWPORT_NEAR) {
+//				continue;
+//			}
+//
+//			if(!RImplementation.get_HUD()) {
+//				Device.mProject_saved.transform(v0.p);
+//				Device.mProject_saved.transform(v1.p);
+//			}
+//			else {
+//				Device.mProject_hud.transform(v0.p);
+//				Device.mProject_hud.transform(v1.p);
+//			}
+//
+//			v0.p.x = (v0.p.x * 0.5f + 0.5f) * Device.TargetWidth;
+//			v0.p.y = (-v0.p.y * 0.5f + 0.5f) * Device.TargetHeight;
+//
+//			v1.p.x = (v1.p.x * 0.5f + 0.5f) * Device.TargetWidth;
+//			v1.p.y = (-v1.p.y * 0.5f + 0.5f) * Device.TargetHeight;
+//
+//			_lines.emplace_back(v0, v1);
+//		}
+//	}
+//} rdebug_render_impl;
+//dxDebugRender *rdebug_render = &rdebug_render_impl; 
 
 #endif	//	DEBUG

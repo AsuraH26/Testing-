@@ -226,12 +226,12 @@ void dxRenderDeviceRender::Create(SDL_Window* window, u32 &dwWidth, u32 &dwHeigh
 			for (const auto& Line : DebugRenderImpl.m_lines)
 			{
 				CmdList.AddLine(
-					ImVec2(Line.first.p.x + ViewPort->WorkPos.x, Line.first.p.y + ViewPort->WorkPos.y),
-					ImVec2(Line.second.p.x + ViewPort->WorkPos.x, Line.second.p.y + ViewPort->WorkPos.y),
-					Line.first.color
+					ImVec2(Line.x1, Line.y1),
+					ImVec2(Line.x2, Line.y2),
+					Line.color
 				);
 			}
-			DebugRenderImpl.m_lines.clear();
+			DebugRenderImpl.m_lines.resize(0);
 		}
 
 		ImGui::End();

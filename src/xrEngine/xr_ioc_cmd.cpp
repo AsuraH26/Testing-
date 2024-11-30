@@ -718,7 +718,7 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"r_actor_shadow",		&psGameFlags,		rsActorShadow			);
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
-#ifdef DEBUG
+#ifdef DEBUG_DRAW
 	CMD3(CCC_Mask,		"rs_occ_draw",			&psDeviceFlags,		rsOcclusionDraw			);
 	CMD3(CCC_Mask,		"rs_occ_stats",			&psDeviceFlags,		rsOcclusionStats		);
 #endif // DEBUG
