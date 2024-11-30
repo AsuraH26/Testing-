@@ -412,7 +412,7 @@ D3DVERTEXELEMENT9* CRender::getVB_Format(int id, BOOL	_alt) {
 	}
 }
 
-ID3DVertexBuffer* CRender::getVB(int id, BOOL	_alt) {
+IBuffer* CRender::getVB(int id, BOOL	_alt) {
 	if(_alt) {
 		VERIFY(id<int(xVB.size()));	return xVB[id];
 	}
@@ -421,7 +421,7 @@ ID3DVertexBuffer* CRender::getVB(int id, BOOL	_alt) {
 	}
 }
 
-ID3DIndexBuffer* CRender::getIB(int id, BOOL	_alt) {
+IBuffer* CRender::getIB(int id, BOOL	_alt) {
 	if(_alt) {
 		VERIFY(id<int(xIB.size()));	return xIB[id];
 	}
