@@ -2,6 +2,7 @@
 #pragma once
 #include "EntityCondition.h"
 #include "actor_defs.h"
+#include "../xrScripts/script_export_space.h"
 
 template <typename _return_type>
 class CScriptCallbackEx;
@@ -165,6 +166,7 @@ public:
 	//typedef xr_vector<SMedicineInfluenceValues>::iterator BOOSTS_VECTOR_ITER;
 	//BOOSTS_VECTOR m_vecBoosts;
 	ref_sound m_use_sound;
+	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 
 class CActorDeathEffector
