@@ -70,7 +70,6 @@
 		</auto_frameline>
 	</down_background>
 
-<<<<<<< HEAD
     <monster_background x="458" y="294" width="319" height="229" stretch="1">
         <texture>ui_inGame2_pda_ranking_icon_over</texture>
 		<auto_static x="6" y="0" width="308" height="25" stretch="1">
@@ -98,19 +97,16 @@
     <favorite_weapon_icon x="620" y="625" width="184" height="80" alignment="c" align="c"/>
 
     <achievements_background x="42" y="294" width="403" height="401">
-=======
-    <achievements_background x="42" y="294" width="732" height="401">
->>>>>>> 34d31b59c (Fix PDA ranking xml)
         <texture>ui_inGame2_pda_ranking_icon_over</texture>
     </achievements_background>
 
-	<achievements_wnd x="59" y="304" width="703" height="381" always_show_scroll="0" stretch="1"/>
-    <achievements_itm x="0" y="0" width="703" height="127" inverse_dir="1">
-        <name x="106" y="3" width="512" height="25">
+	<achievements_wnd x="59" y="304" width="374" height="381" always_show_scroll="0" stretch="1"/>
+    <achievements_itm x="0" y="0" width="374" height="127" inverse_dir="1">
+        <name x="106" y="3" width="256" height="25">
             <text align="l" font="letterica18" r="200" g="200" b="200">test</text>
         </name>
         <icon x="2" y="3" width="97" height="121" stretch="1"/>
-        <descr x="106" y="26" width="512" height="25" complex_mode="1">
+        <descr x="106" y="26" width="256" height="25" complex_mode="1">
             <text align="l" font="letterica16" r="150" g="150" b="150">test</text>
         </descr>
 	    <hint_wnd x="0" y="0" width="168" height="120">
@@ -122,54 +118,4 @@
 	        </text>
 	    </hint_wnd>
     </achievements_itm>
-<<<<<<< HEAD
-=======
-	
-	<!-- CoC Ranking -->
-    <coc_ranking_background x="4058" y="294" width="319" height="401">
-        <texture>ui_inGame2_pda_ranking_icon_over</texture>
-    </coc_ranking_background>
-	<coc_ranking_wnd x="463" y="299" width="309" height="311" always_show_scroll="0" stretch="1"/>
-    <coc_ranking_itm x="0" y="0" width="300" height="80" inverse_dir="1">
-        <name x="75" y="3" width="256" height="25" complex_mode="1">
-            <text align="l" font="letterica18" r="200" g="200" b="200" complex_mode="1">test</text>
-        </name>
-        <icon x="5" y="3" width="64" height="64" stretch="1"/>
-        <descr x="100" y="26" width="256" height="25" complex_mode="1">
-            <text align="l" font="letterica16" r="150" g="150" b="150" complex_mode="1">test</text>
-        </descr>
-	    <hint_wnd x="0" y="0" width="256" height="120">
-	        <background x="0" y="0" width="256" height="100" border="5" stretch="1">
-	            <texture a="200">ui_icons_PDA_tooltips</texture>
-	        </background>
-	        <text x="8" y="10" width="252" height="100" complex_mode="1">
-	            <text font="letterica16" r="150" g="150" b="150" complex_mode="1" align="l" vert_align="t"/>
-	        </text>
-	    </hint_wnd>
-		<border x="0" y="0" width="300" height="80" stretch="1">
-			<texture>ui_inGame2_pda_ranking_icon_over</texture>
-		</border>
-    </coc_ranking_itm>
-	<coc_ranking_wnd_actor x="463" y="620" width="300" height="80" always_show_scroll="0" stretch="1"/>
-    <coc_ranking_itm_actor x="463" y="620" width="300" height="80" inverse_dir="1">
-        <name x="75" y="3" width="256" height="25" complex_mode="1">
-            <text align="l" font="letterica18" r="200" g="200" b="200" complex_mode="1">test</text>
-        </name>
-        <icon x="5" y="3" width="64" height="64" stretch="1"/>
-        <descr x="100" y="26" width="256" height="25" complex_mode="1">
-            <text align="l" font="letterica16" r="150" g="150" b="150" complex_mode="1">test</text>
-        </descr>
-	    <hint_wnd x="0" y="0" width="256" height="120">
-	        <background x="0" y="0" width="256" height="100" border="5" stretch="1">
-	            <texture a="200">ui_icons_PDA_tooltips</texture>
-	        </background>
-	        <text x="8" y="10" width="252" height="100" complex_mode="1">
-	            <text font="letterica16" r="150" g="150" b="150" complex_mode="1" align="l" vert_align="t"/>
-	        </text>
-	    </hint_wnd>
-		<border x="0" y="0" width="300" height="80" stretch="1">
-			<texture>ui_inGame2_pda_ranking_icon_over</texture>
-		</border>
-    </coc_ranking_itm_actor>	
->>>>>>> 34d31b59c (Fix PDA ranking xml)
 </w>
