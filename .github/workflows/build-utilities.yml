@@ -76,7 +76,7 @@ jobs:
             --preset ${{ matrix.preset }}-${{ matrix.platform }}-${{ runner.os }}-${{ matrix.config }}
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: utilities-binaries-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
           path: |
@@ -84,7 +84,7 @@ jobs:
             build/${{ matrix.platform }}/${{ matrix.preset }}-${{ runner.os }}/bin/${{ matrix.config }}/*.dll
 
       - name: Upload symbols
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ matrix.config != 'Release' }}
         with:
           name: utilities-symbols-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
@@ -92,14 +92,14 @@ jobs:
             build/${{ matrix.platform }}/${{ matrix.preset }}-${{ runner.os }}/bin/${{ matrix.config }}/*.pdb
 
       - name: Upload libraries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: utilities-libraries-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
           path: |
             build/${{ matrix.platform }}/${{ matrix.preset }}-${{ runner.os }}/lib/${{ matrix.config }}/
 
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ (matrix.config == 'Debug' && matrix.platform == 'x64') }}
         with:
           name: utilities-packages-${{ matrix.system }}-${{ github.sha }}
@@ -157,7 +157,7 @@ jobs:
             -j$(nproc)
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: targets-binaries-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
           path: |
@@ -167,7 +167,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload symbols
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: ${{ matrix.config != 'Release' }}
         with:
           name: targets-symbols-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
@@ -177,7 +177,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload libraries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: targets-libraries-${{ matrix.system }}-${{ matrix.platform }}-${{ matrix.config }}-${{ github.sha }}
           path: |
@@ -222,7 +222,7 @@ jobs:
             ${{ github.workspace }}/gamedata
 
       - name: Upload assets
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: utilities-assets-${{ github.sha }}
           path: |
@@ -273,7 +273,7 @@ jobs:
             ${{ github.workspace }}/bin
 
       - name: Upload utilities
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: utilities-publish-${{ matrix.system }}-${{ matrix.platform }}-${{ github.sha }}
           path: |
